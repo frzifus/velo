@@ -2,10 +2,23 @@ package velo
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
-	"strconv"
 )
+
+const (
+	stationURL = "https://cms.velocity-aachen.de/backend/app/stations/"
+	slotURL    = stationURL + "%d/slots"
+)
+
+var client struct {
+	Get func(string) (*http.Response, error)
+}
+
+func init() {
+	client.Get = http.Get
+}
 
 type Station struct {
 	ID                int     `json:"stationId"`
@@ -34,30 +47,28 @@ type slotsWrapper struct {
 
 func SlotsByStationID(stationID int) (Slots, error) {
 	var wrapper slotsWrapper
-	url := "https://cms.velocity-aachen.de/backend/app/stations/"
-	url += strconv.Itoa(stationID) + "/slots"
-	resp, err := http.Get(url)
+	resp, err := client.Get(fmt.Sprintf(slotURL, stationID))
 	if err != nil {
 		log.Fatalln(err)
-		return wrapper.Slots, err
+		return nil, err
 	}
 	if err := json.NewDecoder(resp.Body).Decode(&wrapper); err != nil {
 		log.Fatalln(err)
-		return wrapper.Slots, err
+		return nil, err
 	}
 	return wrapper.Slots, nil
 }
 
 func Stations() ([]Station, error) {
 	var stations []Station
-	resp, err := http.Get("https://cms.velocity-aachen.de/backend/app/stations")
+	resp, err := client.Get(stationURL)
 	if err != nil {
 		log.Fatalln(err)
-		return stations, err
+		return nil, err
 	}
 	if err := json.NewDecoder(resp.Body).Decode(&stations); err != nil {
 		log.Fatalln(err)
-		return stations, err
+		return nil, err
 	}
 	return stations, nil
 }
