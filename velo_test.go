@@ -17,7 +17,7 @@ func TestSlotsByStationID(t *testing.T) {
 	tt := []struct {
 		name      string
 		stationID int
-		want      Slots
+		want      []Slot
 		expected  bool
 	}{
 		// TODO: Add test cases

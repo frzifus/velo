@@ -39,14 +39,11 @@ type Slot struct {
 	StateOfCharge float64 `json:"stateOfCharge"`
 }
 
-type Slots []Slot
+func SlotsByStationID(stationID int) ([]Slot, error) {
+	var wrapper struct {
+		Slots []Slot `json:"stationSlots"`
+	}
 
-type slotsWrapper struct {
-	Slots `json:"stationSlots"`
-}
-
-func SlotsByStationID(stationID int) (Slots, error) {
-	var wrapper slotsWrapper
 	resp, err := client.Get(fmt.Sprintf(slotURL, stationID))
 	if err != nil {
 		log.Fatalln(err)
